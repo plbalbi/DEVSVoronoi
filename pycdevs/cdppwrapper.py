@@ -15,6 +15,9 @@ def getRandomFilePath(anExtension):
 class SimulationNotExectutedException(Exception):
     pass
 
+class SimulationFailedException(CalledProcessError):
+    pass
+
 # TODO: Add some custom excepetions, which contain the STDOUT and STDERR contents
 class CDPPWrapper:
 
@@ -31,11 +34,12 @@ class CDPPWrapper:
         try:
             simulationArguments = self.getArguments()
             self.simulationProcessData = subprocess.run(simulationArguments, capture_output=True, check=True)
-            print(f'STDOUT:\n')
-            print(self.simulationProcessData.stdout.decode('ascii'))
         except CalledProcessError as e:
             # The exception contains information about the failed simulation process
-            print(f'The simulation process exeited with an errouneous return code: {e.returncode}')
+            raise SimulationFailedException(e.returncode, e.cmd, e.output, e.stderr)
+
+    def getSimulationStdOut(self):
+        return self.simulationProcessData.stdout.decode('ascii')
     
     def getLogsPath(self):
         if not self.simulationWasExecuted():
