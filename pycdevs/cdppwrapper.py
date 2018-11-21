@@ -4,6 +4,9 @@ from subprocess import CalledProcessError
 # sample cd++ command
 # cd++ -m2Voronoi.ma -ooutput -t00:01:00:00 -llogs
 
+# sample drawlog command
+# drawlog -m2Voronoi.ma -i00:00:00:100 -cvoronoiExpansion -llogs -z/tmp/altoPerro.npz
+
 DEFAULT_TEMP_PATH = '/tmp/'
 
 def getRandomFilename(anExtension):
@@ -18,10 +21,14 @@ class SimulationNotExectutedException(Exception):
 class SimulationFailedException(CalledProcessError):
     pass
 
+class DrawlogFailedException(CalledProcessError):
+    pass
+
 # TODO: Add some custom excepetions, which contain the STDOUT and STDERR contents
 class CDPPWrapper:
 
     CDPP_BIN = 'cd++'
+    DRAWLOG_BIN = 'drawlog'
 
     # TODO: Add type checking to constructor
     def __init__(self, aModel, aSimulationTime):
@@ -31,12 +38,28 @@ class CDPPWrapper:
 
     def run(self):
         self.generateOutfilesPaths()
+        simulationArguments = self.getArguments()
         try:
-            simulationArguments = self.getArguments()
             self.simulationProcessData = subprocess.run(simulationArguments, capture_output=True, check=True)
         except CalledProcessError as e:
             # The exception contains information about the failed simulation process
             raise SimulationFailedException(e.returncode, e.cmd, e.output, e.stderr)
+
+    def drawlog(self, anInterval):
+        if not self.simulationWasExecuted():
+            raise SimulationNotExectutedException()
+
+        self.drawlogNPPath = getRandomFilePath('npz')
+
+        drawlogArguments = [self.__class__.DRAWLOG_BIN, f'-m{self.model.getPath()}', f'-l{self.getLogsPath()}' ,\
+            f'-c{self.model.name}', f'-i{anInterval}', f'-z{self.drawlogNPPath}']
+
+        try:
+            subprocess.run(drawlogArguments, capture_output=True, check=True)
+            return self.drawlogNPPath
+        except CalledProcessError as e:
+            # The exception contains information about the failed simulation process
+            raise DrawlogFailedException(e.returncode, e.cmd, e.output, e.stderr)
 
     def getSimulationStdOut(self):
         return self.simulationProcessData.stdout.decode('ascii')
@@ -64,8 +87,9 @@ class CDPPWrapper:
         self.logsFileName = getRandomFilePath('log')
     
 class Model:
-    def __init__(self, source):
+    def __init__(self, source, modelName):
         self.source = source
+        self.name = modelName
         self.path = None
     
     # Lazily write model file
