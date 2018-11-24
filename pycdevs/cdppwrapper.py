@@ -18,8 +18,18 @@ def getRandomFilePath(anExtension):
 class SimulationNotExectutedException(Exception):
     pass
 
-class SimulationFailedException(CalledProcessError):
+class SimulationProcessFailedException(CalledProcessError):
     pass
+
+class SimulationExecutedButFailedException(Exception):
+    pass
+
+# TODO: Find a way to use this as a general simulation exception
+class SimulationException(Exception):
+    def __init__(self, actualCause):
+        self.cause = actualCause
+    def getCause(self):
+        return self.cause
 
 class DrawlogFailedException(CalledProcessError):
     pass
@@ -29,6 +39,7 @@ class CDPPWrapper:
 
     CDPP_BIN = 'cd++'
     DRAWLOG_BIN = 'drawlog'
+    simulationAbortedErrorMessage = 'Aborting simulation...\n'
 
     # TODO: Add type checking to constructor
     def __init__(self, aModel, aSimulationTime):
@@ -41,9 +52,12 @@ class CDPPWrapper:
         simulationArguments = self.getArguments()
         try:
             self.simulationProcessData = subprocess.run(simulationArguments, capture_output=True, check=True)
+
         except CalledProcessError as e:
             # The exception contains information about the failed simulation process
-            raise SimulationFailedException(e.returncode, e.cmd, e.output, e.stderr)
+            raise SimulationProcessFailedException(e.returncode, e.cmd, e.output, e.stderr)
+        if self.getSimulationStdOut().endswith(self.__class__.simulationAbortedErrorMessage):
+            raise SimulationExecutedButFailedException()
 
     def drawlog(self, anInterval):
         if not self.simulationWasExecuted():
@@ -61,8 +75,13 @@ class CDPPWrapper:
             # The exception contains information about the failed simulation process
             raise DrawlogFailedException(e.returncode, e.cmd, e.output, e.stderr)
 
+        # TODO: Add check on 'Aborting simulation...' stdout last line, and throw error
+
     def getSimulationStdOut(self):
         return self.simulationProcessData.stdout.decode('ascii')
+
+    def getSimulationOutput(self):
+        return 'STDOUT:\n' + self.getSimulationStdOut() + '\nSTDERR:\n' + self.simulationProcessData.stderr.decode('ascii')
     
     def getLogsPath(self):
         if not self.simulationWasExecuted():
