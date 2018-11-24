@@ -1,0 +1,5 @@
+### A DEVS Proof of Concept for calculating Dynamic Voronoi Diagrams
+
+Also, this includes yet another PoC: A DEVS Wrapper, that by using and exploiting Jupyter and NumPy capabilities, is able to render animated plots of the simulation made with CellDEVS.
+
+In order to use, one has to use a custom CellDEVS simulator, which with some changes, is able to export the simulation made to a NumPy compressed file: and **.npz**. The repository containing this custom version of the CD++ simulator is [here](https://github.com/plbalbi/CDPP_ExtendedStates-codename-Santi/tree/DrawlogToNumpy). Also, this modified version consumes a library which at the moment, has to be compiled mannually (it should be added in here), which can be downloded from [here](https://github.com/rogersce/cnpy). Once compiled, the Makefile corresponding to *src/tools/drawlog* has to be changed, to target the location of the just-compiled library.
