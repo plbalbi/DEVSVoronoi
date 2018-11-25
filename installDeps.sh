@@ -1,6 +1,6 @@
 #!/bin/bash
 
-git clone git@github.com:rogersce/cnpy.git
+git clone https://github.com/rogersce/cnpy.git
 mkdir cnpy/bin
 cd cnpy/bin
 cmake ..
