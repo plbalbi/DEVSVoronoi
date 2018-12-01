@@ -36,12 +36,13 @@ class CDPPWrapper:
 
     # TODO: Add type checking to constructor
     def __init__(self, aModel, aSimulationTime):
+        self.logsFileName = getRandomFilePath('log')
+        self.outputFileName = getRandomFilePath('out')
         self.model = aModel
         self.endTime = aSimulationTime
         self.simulationProcessData = None
 
     def run(self):
-        self.generateOutfilesPaths()
         simulationArguments = self.getArguments()
         try:
             self.simulationProcessData = subprocess.run(simulationArguments, capture_output=True, check=True)
@@ -90,10 +91,10 @@ class CDPPWrapper:
         return self.simulationProcessData is not None
 
     def getArguments(self):
+        self.generateOutfilesPaths()
         arguments = [self.__class__.CDPP_BIN, f'-m{self.model.getPath()}',\
             f'-o{self.outputFileName}', f'-t{self.endTime}', f'-l{self.logsFileName}']
         return arguments
 
     def generateOutfilesPaths(self):
-        self.outputFileName = getRandomFilePath('out')
-        self.logsFileName = getRandomFilePath('log')
+        pass
