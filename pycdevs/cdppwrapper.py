@@ -1,19 +1,12 @@
-import subprocess, time
+import subprocess
 from subprocess import CalledProcessError
+from .file_helpers import getRandomFilename, getRandomFilePath
 
 # sample cd++ command
 # cd++ -m2Voronoi.ma -ooutput -t00:01:00:00 -llogs
 
 # sample drawlog command
 # drawlog -m2Voronoi.ma -i00:00:00:100 -cvoronoiExpansion -llogs -z/tmp/altoPerro.npz
-
-DEFAULT_TEMP_PATH = '/tmp/'
-
-def getRandomFilename(anExtension):
-    return f'{int(time.time() * 1000)}.{anExtension}'
-
-def getRandomFilePath(anExtension):
-    return DEFAULT_TEMP_PATH + getRandomFilename(anExtension)
 
 class SimulationNotExectutedException(Exception):
     pass
@@ -104,20 +97,3 @@ class CDPPWrapper:
     def generateOutfilesPaths(self):
         self.outputFileName = getRandomFilePath('out')
         self.logsFileName = getRandomFilePath('log')
-    
-class Model:
-    def __init__(self, source, modelName):
-        self.source = source
-        self.name = modelName
-        self.path = None
-    
-    # Lazily write model file
-    def getPath(self):
-        if self.path is None:
-            self.doGetPath()
-        return self.path
-
-    def doGetPath(self):
-        self.path = getRandomFilePath('ma')
-        with open(self.path, 'w') as modelFile:
-            modelFile.write(self.source)
