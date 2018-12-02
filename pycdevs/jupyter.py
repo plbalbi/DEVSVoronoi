@@ -4,7 +4,7 @@ import matplotlib.animation as animation
 from matplotlib import pyplot as plt
 from IPython.display import HTML
 
-def get_simulated_voronoi_animation(drawlog_np_generated_filename, intial_values):
+def get_simulated_voronoi_animation(drawlog_np_generated_filename, intial_values, figsize=(15,10)):
     loadedMatrix = np.load(drawlog_np_generated_filename)
 
     composedMatrix = np.zeros([intial_values.values.shape[0], intial_values.values.shape[1], len(loadedMatrix.files)],
@@ -25,10 +25,10 @@ def get_simulated_voronoi_animation(drawlog_np_generated_filename, intial_values
         return composed_image
 
     index = 0
-    fig, ax = plt.subplots(figsize=(15, 10))
+    fig, ax = plt.subplots(figsize=figsize)
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
-    plottedImage = ax.imshow(composedMatrix[..., index], cmap=cells_cmap)
+    plottedImage = ax.imshow(composedMatrix[..., index], cmap=cells_cmap);
     stepsCount = composedMatrix.shape[2]
 
     def updateImage(frame_number, *fargs):
