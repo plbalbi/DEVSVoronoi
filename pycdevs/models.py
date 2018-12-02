@@ -34,7 +34,7 @@ class CellValues:
 
         self.values = cell_values
 
-    def get_dimension(self):
+    def get_printable_dimension(self):
         return f'({self.values.shape[0]},{self.values.shape[1]})'
 
     def write_to_file(self) -> str:
