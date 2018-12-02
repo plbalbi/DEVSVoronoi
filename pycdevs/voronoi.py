@@ -103,10 +103,3 @@ class VoronoiModel(Model):
                 raise Exception('Expression with key "{0}" was not found in expression register.'.format(expression_key))
 
             self.source = self.source.replace(replaceable_expression, resolved_value)
-
-
-
-
-
-
-
