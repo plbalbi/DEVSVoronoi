@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.animation as animation
 
 from matplotlib import pyplot as plt
-from IPython.display import HTML
 
 def get_simulated_voronoi_animation(drawlog_np_generated_filename, intial_values, figsize=(15,10)):
     loadedMatrix = np.load(drawlog_np_generated_filename)
@@ -37,4 +36,4 @@ def get_simulated_voronoi_animation(drawlog_np_generated_filename, intial_values
         return plottedImage,
 
     simulationAnimation = animation.FuncAnimation(fig, updateImage, interval=100, frames=stepsCount, repeat=False)
-    return HTML(simulationAnimation.to_html5_video())
+    return simulationAnimation.to_html5_video()
