@@ -9,12 +9,12 @@ class Model:
         self.path = None
 
     # Lazily write model file
-    def getPath(self):
+    def get_path(self):
         if self.path is None:
-            self.doGetPath()
+            self.do_get_path()
         return self.path
 
-    def doGetPath(self):
+    def do_get_path(self):
         self.path = getRandomFilePath('ma')
         with open(self.path, 'w') as modelFile:
             modelFile.write(self.source)

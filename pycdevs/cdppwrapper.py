@@ -59,8 +59,8 @@ class CDPPWrapper:
 
         self.drawlogNPPath = getRandomFilePath('npz')
 
-        drawlogArguments = [self.__class__.DRAWLOG_BIN, f'-m{self.model.getPath()}', f'-l{self.getLogsPath()}' ,\
-            f'-c{self.model.name}', f'-i{anInterval}', f'-z{self.drawlogNPPath}']
+        drawlogArguments = [self.__class__.DRAWLOG_BIN, f'-m{self.model.get_path()}', f'-l{self.getLogsPath()}' , \
+                            f'-c{self.model.name}', f'-i{anInterval}', f'-z{self.drawlogNPPath}']
 
         try:
             subprocess.run(drawlogArguments, capture_output=True, check=True)
@@ -92,7 +92,7 @@ class CDPPWrapper:
 
     def getArguments(self):
         self.generateOutfilesPaths()
-        arguments = [self.__class__.CDPP_BIN, f'-m{self.model.getPath()}',\
+        arguments = [self.__class__.CDPP_BIN, f'-m{self.model.get_path()}',\
             f'-o{self.outputFileName}', f'-t{self.endTime}', f'-l{self.logsFileName}']
         return arguments
 
