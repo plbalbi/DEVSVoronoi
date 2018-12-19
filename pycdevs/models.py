@@ -35,7 +35,7 @@ class CellValues:
         self.values = cell_values
 
     def get_printable_dimension(self):
-        return f'({self.values.shape[0]},{self.values.shape[1]})'
+        return '({}, {})'.format(self.values.shape[0], self.values.shape[1])
 
     def write_to_file(self) -> str:
         """Writes the given values to a initialCellValues file, returning the path to it."""
@@ -44,11 +44,8 @@ class CellValues:
                 for j in range(self.values.shape[1]):
                     current_cell_value = self.values[i, j]
                     if self.values[i, j] != self.default:
-                        values_file.write(f'({i},{j})={current_cell_value}\n')
+                        values_file.write(
+                            '({},{})={}\n'.format(i, j, current_cell_value)
+                        )
 
         return self.path
-
-
-
-
-

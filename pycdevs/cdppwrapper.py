@@ -8,30 +8,39 @@ from .file_helpers import getRandomFilename, getRandomFilePath
 # sample drawlog command
 # drawlog -m2Voronoi.ma -i00:00:00:100 -cvoronoiExpansion -llogs -z/tmp/altoPerro.npz
 
+
 class SimulationNotExectutedException(Exception):
     pass
 
+
 class SimulationProcessFailedException(CalledProcessError):
     pass
+
 
 class SimulationExecutedButFailedException(Exception):
     pass
 
 # TODO: Find a way to use this as a general simulation exception
+
+
 class SimulationException(Exception):
     def __init__(self, actualCause):
         self.cause = actualCause
+
     def getCause(self):
         return self.cause
+
 
 class DrawlogFailedException(CalledProcessError):
     pass
 
 # TODO: Add some custom excepetions, which contain the STDOUT and STDERR contents
+
+
 class CDPPWrapper:
 
-    CDPP_BIN = 'cd++'
-    DRAWLOG_BIN = 'drawlog'
+    CDPP_BIN = './cd++'
+    DRAWLOG_BIN = './drawlog'
     simulationAbortedErrorMessage = 'Aborting simulation...\n'
 
     # TODO: Add type checking to constructor
@@ -45,11 +54,19 @@ class CDPPWrapper:
     def run(self):
         simulationArguments = self.getArguments()
         try:
-            self.simulationProcessData = subprocess.run(simulationArguments, capture_output=True, check=True)
+
+            self.simulationProcessData = subprocess.run(
+                simulationArguments,
+                # capture_output=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True
+            )
 
         except CalledProcessError as e:
             # The exception contains information about the failed simulation process
-            raise SimulationProcessFailedException(e.returncode, e.cmd, e.output, e.stderr)
+            raise SimulationProcessFailedException(
+                e.returncode, e.cmd, e.output, e.stderr)
         if self.getSimulationStdOut().endswith(self.__class__.simulationAbortedErrorMessage):
             raise SimulationExecutedButFailedException()
 
@@ -59,15 +76,28 @@ class CDPPWrapper:
 
         self.drawlogNPPath = getRandomFilePath('npz')
 
-        drawlogArguments = [self.__class__.DRAWLOG_BIN, f'-m{self.model.get_path()}', f'-l{self.getLogsPath()}' , \
-                            f'-c{self.model.name}', f'-i{anInterval}', f'-z{self.drawlogNPPath}']
+        drawlogArguments = [
+            self.__class__.DRAWLOG_BIN,
+            '-m'+self.model.get_path(),
+            '-l'+self.getLogsPath(),
+            '-c'+self.model.name,
+            '-i'+anInterval,
+            '-z'+self.drawlogNPPath,
+        ]
 
         try:
-            subprocess.run(drawlogArguments, capture_output=True, check=True)
+            subprocess.run(
+                drawlogArguments, 
+                # capture_output=True, 
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True
+            )
             return self.drawlogNPPath
         except CalledProcessError as e:
             # The exception contains information about the failed simulation process
-            raise DrawlogFailedException(e.returncode, e.cmd, e.output, e.stderr)
+            raise DrawlogFailedException(
+                e.returncode, e.cmd, e.output, e.stderr)
 
         # TODO: Add check on 'Aborting simulation...' stdout last line, and throw error
 
@@ -76,7 +106,7 @@ class CDPPWrapper:
 
     def getSimulationOutput(self):
         return 'STDOUT:\n' + self.getSimulationStdOut() + '\nSTDERR:\n' + self.simulationProcessData.stderr.decode('ascii')
-    
+
     def getLogsPath(self):
         if not self.simulationWasExecuted():
             raise SimulationNotExectutedException()
@@ -92,8 +122,13 @@ class CDPPWrapper:
 
     def getArguments(self):
         self.generateOutfilesPaths()
-        arguments = [self.__class__.CDPP_BIN, f'-m{self.model.get_path()}',\
-            f'-o{self.outputFileName}', f'-t{self.endTime}', f'-l{self.logsFileName}']
+        arguments = [
+            self.__class__.CDPP_BIN,
+            '-m' + self.model.get_path(),
+            '-o' + self.outputFileName,
+            '-t' + self.endTime,
+            '-l' + self.logsFileName
+        ]
         return arguments
 
     def generateOutfilesPaths(self):
